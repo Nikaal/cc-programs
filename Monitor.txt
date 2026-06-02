@@ -1,4 +1,4 @@
-m = peripheral.wrap("right") -- Changer la face où se trouve le monitor
+m = peripheral.wrap("right") -- Changer la face oÃ¹ se trouve le monitor
 while true do
    local time = textutils.formatTime(os.time(),true)
 
@@ -19,7 +19,7 @@ end
 - "top" : Haut
 - "bottom" : Bas
 - "front" : Devant
-- "back" : Derrière
+- "back" : DerriÃ¨re
 - "left" : Gauche
 - "right" : Droite
 
