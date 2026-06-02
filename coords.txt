@@ -1,0 +1,4 @@
+		overworld			nether
+Echocube	x	y	z		x	y	z
+manoir
+base		1745	64	2165		218		270

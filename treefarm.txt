@@ -1,0 +1,110 @@
+-- Tree Farm by Nikaal
+-- Version 1.0 16/11/2012
+
+-- VAR
+coordY = 0
+
+-- FUNCTIONS
+function placerPousse()
+	if turtle.getItemCount(1) ~= 0 then
+		turtle.select(1)
+		turtle.placeDown()
+	end
+end
+
+function couperArbre()
+	while turtle.detectUp() do
+		turtle.digUp()
+		sleep(0.5)
+		turtle.up()
+		coordY = coordY + 1
+	end
+	while not turtle.detectDown() do
+		turtle.down()
+		coordY = coordY - 1
+	end
+	if coordY == 0 then
+		turtle.up()
+		coordY = coordY + 1
+	elseif turtle.detectDown() then
+		turtle.digDown()
+		sleep(0.5)
+		placerPousse()
+	end
+end
+
+function avancer()
+	if not turtle.detect() then
+		turtle.forward()
+	else
+		turtle.dig()
+		sleep(0.5)
+		turtle.forward()
+		if turtle.detectUp() then
+			couperArbre()
+		end
+	end
+end
+
+function tournerDroite()
+	turtle.dig()
+	turtle.forward()
+	turtle.turnRight()
+	turtle.dig()
+	turtle.forward()
+	turtle.turnRight()
+end
+
+function tournerGauche()
+	turtle.dig()
+	turtle.forward()
+	turtle.turnLeft()
+	turtle.dig()
+	turtle.forward()
+	turtle.turnLeft()
+end
+
+function recupererPousses()
+	rs.setOutput("right", true)
+	sleep(0.5)
+	rs.setOutput("right", false)
+	sleep(10)
+end
+
+function viderInv()
+	for i=1,16 do
+		rs.setOutput("back", true)
+		sleep(0.5)
+		rs.setOutput("back", false)
+		sleep(0.5)
+	end
+end
+
+-- MAIN
+local droite = true
+
+recupererPousses()
+turtle.up()
+coordY = coordY + 1
+
+for i=1,17 do
+	for j=1,17 do
+		avancer()
+	end
+	if droite == true then
+		droite = false
+		tournerDroite()
+	else
+		droite = true
+		tournerGauche()
+	end
+end
+
+shell.run("go", "forward", "18")
+shell.run("turn", "right")
+shell.run("go", "forward", "16")
+shell.run("turn", "right")
+shell.run("go", "down")
+
+viderInv()
+	

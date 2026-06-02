@@ -1,0 +1,247 @@
+----SFControl http://pastebin.com/MCbpPdD4
+local state = "stop"
+local monitor = peripheral.wrap("left")
+
+function drawButton(x, y, text, color)
+  monitor.setCursorPos(x, y)
+  monitor.setBackgroundColor(color)
+  
+  for i=1,#text + 4 do
+    monitor.write(" ")
+  end
+  
+  monitor.setCursorPos(x, y + 1)
+  monitor.write("  "..text.."  ")
+  
+  monitor.setCursorPos(x, y + 2)
+  for i=1,#text + 4 do
+    monitor.write(" ")
+  end
+  
+  monitor.setBackgroundColor(colors.black)
+end
+
+function drawUI()
+  monitor.clear()
+  
+  monitor.setCursorPos(3, 3)
+  monitor.write("Solar Factory:")
+  
+  if state == "stop" then
+    drawButton(30, 2, "On", colors.red)
+  else
+    drawButton(30, 2, "On", colors.green)
+  end
+
+  if state == 1 then  
+    drawButton(6, 8, "Fabriquer  6  Panneaux", colors.green)
+  else
+    drawButton(6, 8, "Fabriquer  6  Panneaux", colors.red)
+  end
+  
+  if state == 2 then
+    drawButton(6, 12, "Fabriquer 66  Panneaux", colors.green)
+  else
+    drawButton(6, 12, "Fabriquer 66  Panneaux", colors.red)
+  end
+  
+  if state == 3 then
+    drawButton(6, 16, "Fabriquer 516 Panneaux", colors.green)
+  else
+    drawButton(6, 16, "Fabriquer 516 Panneaux", colors.red)
+  end
+  
+  monitor.setCursorPos(3, 22)
+  monitor.write("Production de ressources:")
+  
+  if resources == "resources:true" then
+    drawButton(30, 21, "On", colors.green)
+  else
+    drawButton(30, 21, "On", colors.red)
+  end
+end
+
+function readResourcesFile()
+  f = fs.open("sfcontrol.txt", "r")
+  resources = f.readLine()
+  f.close()
+end
+
+function saveResourcesFile()
+  f = fs.open("sfcontrol.txt", "w")
+  f.write(resources)
+  f.close()
+end
+
+function updateResourcesState(switch)
+  if switch == true then
+    if resources == "resources:true" then
+	  resources = "resources:false"
+	else
+	  resources = "resources:true"
+	end
+	
+    saveResourcesFile()
+  end
+  
+  local output = true
+  
+  if resources == "resources:false" then
+    output = false
+  end
+  
+  rs.setOutput("right", output)
+end
+
+-- MAIN --
+
+local resources = readResourcesFile()
+updateResourcesState(false)
+
+rednet.open("top")
+
+monitor.setTextScale(0.5)
+
+while true do
+  drawUI()
+  
+  e, arg1, arg2, arg3 = os.pullEvent()
+  
+  if e == "monitor_touch" then
+    local side = arg1
+    local x = arg2
+    local y = arg3
+    
+    local update = true
+    local count = 1
+  
+    if x>=30 and x<=36 and y>=2 and y <=5 then
+      state = "stop"
+    elseif x>=6 and x<=31 and y>=8 and y<=11 then
+      state = 1
+    elseif x>=6 and x<=31 and y>=12 and y<=15 then
+      state = 2
+      count = 11
+    elseif x>=6 and x<=31 and y>=16 and y<=18 then
+      state = 3
+      count = 86
+    elseif x>=30 and x<=35 and y>=21 and y<=24 then
+      updateResourcesState(true)
+      update = false
+    else
+      update = false
+    end
+  
+    if update == true then
+      rednet.send(33, count)
+    end
+  elseif e == "rednet_message" then
+    state = "stop"
+  end
+end
+
+-------------------------------------------------------------------------------
+
+----SolarFactory http://pastebin.com/SKQkFsN5
+rednet.open("right")
+
+while true do
+  print("Waiting for commands ...")
+  
+  event, id, message = os.pullEvent("rednet_message")
+  
+  count = tonumber(message)
+  
+  for i=1, count do
+    print("  Working on Solar: "..i.." / "..count)
+    
+    shell.run("Collect")
+    shell.run("Craft")
+  end
+  
+  rednet.send(id, "stop")
+end
+
+-------------------------------------------------------------------------------
+
+----Collect http://pastebin.com/FpKLY7iP
+-- RESOURCES --
+local items = {}
+
+-- glass
+items[1] = 1
+-- redstone
+items[2] = 1
+-- tin
+items[3] = 1
+-- coal dust
+items[4] = 1
+-- copper
+items[5] = 1
+-- rubber
+items[6] = 2
+-- iron
+items[7] = 1
+-- cobble
+items[8] = 1
+
+--if turtle.getItemCount(1) ~= 0 then
+  -- copper
+  --items[5] = 6
+  -- rubber
+  --items[6] = 12
+--end
+
+-- COLLECT --
+
+for i=1, 8 do
+  turtle.forward()
+  
+  for j=1, items[i] do
+    rs.setOutput("top", true)
+    sleep(0.2)
+    rs.setOutput("top", false)
+    sleep(0.2)
+  end
+end
+
+-------------------------------------------------------------------------------
+
+----Craft http://pastebin.com/J3cVULKP
+turtle.forward()
+turtle.turnRight()
+turtle.suck()
+
+for i=1, 2 do
+  turtle.suck()
+  turtle.turnLeft()
+end
+
+turtle.suck()
+turtle.up()
+
+for i=1, 3 do
+  turtle.suck()
+  turtle.turnRight()
+end
+
+turtle.down()
+
+for i=1, 9 do
+  turtle.forward()
+end
+
+turtle.select(1)
+turtle.transferTo(5)
+
+turtle.suck()
+turtle.turnLeft()
+turtle.drop()
+
+turtle.turnLeft()
+
+turtle.select(5)
+turtle.transferTo(1)
+turtle.select(1)
+
+-------------------------------------------------------------------------------

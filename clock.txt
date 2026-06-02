@@ -1,0 +1,9 @@
+m = peripheral.wrap("top")
+while true do
+	m.clear()
+	m.setTextScale(5)
+	m.setCursorPos(1, 2)
+	local nTime = os.time()
+	m.write(textutils.formatTime(nTime, true))
+	sleep(0.3)
+end

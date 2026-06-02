@@ -1,0 +1,42 @@
+m = peripheral.wrap("right") -- Changer la face où se trouve le monitor
+while true do
+   local time = textutils.formatTime(os.time(),true)
+
+   m.clear()
+   m.setCursorPos(1,1)
+   m.write("Bienvenue Monsieur,")
+   m.setCursorPos(1,2)
+   m.write("il est actuellement : " .. time)
+
+   os.sleep(10)
+end
+
+
+
+
+
+
+- "top" : Haut
+- "bottom" : Bas
+- "front" : Devant
+- "back" : Derrière
+- "left" : Gauche
+- "right" : Droite
+
+
+
+
+
+function wrap(type)
+   local sides = redstone.getSides()
+   for i=1,6 do
+      if peripheral.getType(sides[i]) == type then
+         return peripheral.wrap(sides[i])
+      end
+   end
+   return nil
+end
+
+-- Exemples :
+m = wrap("monitor")
+c = wrap("computer")

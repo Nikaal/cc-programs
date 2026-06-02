@@ -1,0 +1,202 @@
+-- Tree Farm by Nikaal
+-- Version 0.8 16/11/2012
+
+-- VAR
+Version = "v0.8"
+WidthQuestion = true
+LengthQuestion = true
+StartCoordX = 0
+StartCoordY = 0
+StartCoordZ = 0
+CoordX = 0
+CoordY = 0
+CoordZ = 0
+LengthVar = 0
+WidthVar = 0
+Direction = 0
+
+-- FUNCTIONS
+function GetVersion()
+	return Version
+end
+
+function Clearscreen()
+	term.clear()
+end
+
+function PrintCoord()
+	strCo = "(X,Y,Z)=(" .. CoordX .. "," .. CoordY .. "," .. CoordZ .. ")"
+	print(strCo)
+end
+
+function DigDown()
+	if turtle.detectDown() == true then
+		turtle.digDown()
+		sleep(0.5)
+	end
+end
+
+function DigUp()
+	while turtle.detectUp() == true do
+		turtle.digUp()
+		sleep(0.5)
+		turtle.up()
+		CoordY = CoordY + 1
+	end
+end
+
+function PlaceSapling()
+	if turtle.getItemCount(1) ~= 0 then
+		turtle.select(1)
+		turtle.placeDown()
+	end
+end
+
+function CutTree()
+	DigUp()
+	while CoordY ~= 1 do
+		turtle.down()
+		CoordY = CoordY - 1
+	end
+	if turtle.detectDown() == true then
+		DigDown()
+		PlaceSapling()
+	end
+end
+
+function DigForward()
+	turtle.dig()
+	sleep(0.5)
+	turtle.forward()
+	if Direction == 0 then
+		CoordZ = CoordZ + 1
+		LengthVar = LengthVar + 1
+	elseif Direction == 1 then
+		CoordX = CoordX + 1
+		WidthVar = WidthVar + 1
+	else
+		CoordZ = CoordZ - 1
+		LengthVar = LengthVar + 1
+	end
+	PrintCoord()
+	if turtle.detectUp() == true then
+		CutTree()
+	end
+end
+
+function MoveForward()
+	if turtle.detect() == false then
+		turtle.forward()
+		if Direction == 0 then
+			CoordZ = CoordZ + 1
+			LengthVar = LengthVar + 1
+		elseif Direction == 1 then
+			CoordX = CoordX + 1
+			WidthVar = WidthVar + 1
+		else
+			CoordZ = CoordZ - 1
+			LengthVar = LengthVar + 1
+		end
+		PrintCoord()
+	else
+		DigForward()
+	end
+end
+
+function ReturnToStart()
+	if Direction == 0 then
+		turtle.turnLeft()
+		Direction = 3
+	elseif Direction == 2 then
+		turtle.turnRight()
+		Direction = 3
+	end
+while CoordX ~= StartCoordX do
+	turtle.forward()
+	CoordX = CoordX - 1
+	PrintCoord()
+end
+turtle.turnLeft()
+Direction = 2
+while CoordZ ~= StartCoordZ do
+	turtle.forward()
+	CoordZ = CoordZ - 1
+	PrintCoord()
+end
+turtle.turnLeft()
+turtle.turnLeft()
+turtle.down()
+CoordY = CoordY - 1
+PrintCoord()
+end
+
+-- MAIN
+Clearscreen()
+print("Programme TreeFarm par Nikaal.")
+version = GetVersion()
+print("Version " .. version)
+
+-- Questions
+while WidthQuestion == true do
+	print("Largeur de la zone ?")
+	width = tonumber(read())
+	--Clearscreen()
+	if width == nil then
+		print("Repondre avec un nombre.")
+	elseif width > 0 then
+		WidthQuestion = false
+	elseif width == 0 then
+		print("La largeur ne peut etre infinie.")
+	else
+		print("La largeur doit etre positive.")
+	end
+end
+while LengthQuestion == true do
+	print("Longueur de la zone ?")
+	length = tonumber(read())
+	--Clearscreen()
+	if length == nil then
+		print("Repondre avec un nombre.")
+	elseif length > 0 then
+		LengthQuestion = false
+	elseif length == 0 then
+		print("La longueur ne peut etre infinie.")
+	else
+		print("La longueur doit etre positive.")
+	end
+end
+
+-- Farm Loop
+Clearscreen()
+print("Debut du programme.")
+PrintCoord()
+turtle.up()
+CoordY = 1
+PrintCoord()
+turtle.forward()
+CoordZ = 1
+LengthVar = 1
+PrintCoord()
+while WidthVar < width do
+	while LengthVar < length do
+		MoveForward()
+	end
+	if Direction == 0 then
+		turtle.turnRight()
+		Direction = 1
+		MoveForward()
+		turtle.turnRight()
+		Direction = 2
+	elseif Direction == 2 then
+		turtle.turnLeft()
+		Direction = 1
+		MoveForward()
+		turtle.turnLeft()
+		Direction = 0	
+	end
+	LengthVar = 1
+end
+print("Fin du programme.")
+print("Retour au depart.")
+ReturnToStart()
+	
